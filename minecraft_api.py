@@ -1,34 +1,27 @@
-from mcstatus import JavaServer, BedrockServer
+import urllib.request
+import json
 
 def get_server_status(host: str, port: int = 25565, bedrock: bool = False):
     try:
-        if bedrock:
-            server = JavaServer.lookup(f"{host}:{port}", timeout=10)
-            status = server.status()
-            return {
-                "online": True,
-                "players_online": status.players_online,
-                "players_max": status.players_max,
-                "motd": status.motd,
-                "version": status.version.name,
-                "players": []
-            }
-        else:
-            server = JavaServer.lookup(f"{host}:{port}")
-            status = server.status()
-            players = []
-            if status.players.sample:
-                players = [p.name for p in status.players.sample]
-            return {
-                "online": True,
-                "players_online": status.players.online,
-                "players_max": status.players.max,
-                "motd": status.description,
-                "version": status.version.name,
-                "players": players
-            }
-    except Exception as e:
+        url = f"https://api.mcsrvstat.us/2/{host}:{port}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=15) as response:
+            data = json.loads(response.read().decode())
+
+        if not data.get("online"):
+            return {"online": False, "error": "Сервер недоступен"}
+
+        players = []
+        if data.get("players", {}).get("list"):
+            players = data["players"]["list"]
+
         return {
-            "online": False,
-            "error": str(e)
+            "online": True,
+            "players_online": data.get("players", {}).get("online", 0),
+            "players_max": data.get("players", {}).get("max", 0),
+            "motd": data.get("motd", {}).get("clean", [""])[0] if isinstance(data.get("motd", {}).get("clean"), list) else data.get("motd", {}).get("clean", ""),
+            "version": data.get("version", "неизвестно"),
+            "players": players
         }
+    except Exception as e:
+        return {"online": False, "error": str(e)}
