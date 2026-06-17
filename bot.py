@@ -11,7 +11,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 print(f"TOKEN получен: {bool(BOT_TOKEN)}")
 print(f"TOKEN начинается с: {str(BOT_TOKEN)[:10] if BOT_TOKEN else 'ПУСТО'}")
 
-MC_HOST = "26.38.137.79"  # ← ваш сервер
+MC_HOST = "wise-beings.gl.joinmc.link"  # ← ваш сервер
 MC_PORT = 25565
 MC_BEDROCK = False
 
