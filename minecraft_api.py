@@ -6,10 +6,12 @@ def get_server_status(host: str, port: int = 25565, bedrock: bool = False):
         url = f"https://api.mcsrvstat.us/2/{host}:{port}"
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urllib.request.urlopen(req, timeout=15) as response:
-            data = json.loads(response.read().decode())
+            raw = response.read().decode()
+            print(f"API ответ: {raw[:500]}")  # выводим первые 500 символов
+            data = json.loads(raw)
 
         if not data.get("online"):
-            return {"online": False, "error": "Сервер недоступен"}
+            return {"online": False, "error": f"API говорит оффлайн: {raw[:200]}"}
 
         players = []
         if data.get("players", {}).get("list"):
