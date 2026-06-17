@@ -3,7 +3,7 @@ from mcstatus import JavaServer, BedrockServer
 def get_server_status(host: str, port: int = 25565, bedrock: bool = False):
     try:
         if bedrock:
-            server = BedrockServer.lookup(f"{host}:{port}")
+            server = JavaServer.lookup(f"{host}:{port}", timeout=10)
             status = server.status()
             return {
                 "online": True,
